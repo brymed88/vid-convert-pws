@@ -21,13 +21,14 @@ $ext_array = @(".avi", ".flv", ".mkv", ".mov", ".mp4", ".wmv", ".srt", ".en.srt"
 #Remove converted local file after transfer 0=no 1=yes
 $del_file = 1
 
-#Video File Save Folder, alter to save converted movies to new location.
+#FFMPEG and WINSCP folders
 $ffmpegLoc = "C:\Users\bryce\Videos\TOR\ffmpeg"
 $winSCPLoc = "C:\Users\bryce\Videos\TOR\WinSCP-5.19.3-Portable"
 
 #Remote Server Information For SFTP Transfer. Alter these values to match your environment.
 $enable_transfer = 1
 $rem_saveFolder = "/media/PIPLEX"
+
 function transfer_file($ft) {
 
     #Call winscp and pass parameters
@@ -40,19 +41,20 @@ function transfer_file($ft) {
 
     $winscpResult = $LastExitCode
     if ($winscpResult -eq 0) {
-        Write-Host "Success"
+
+        Start-Sleep -s 1
+
+        #If transfer is successful delete movie from folder
+        if ($del_file -eq 1) {
+            Remove-Item $fpath\$ft
+        }
+
     }
     else {
         Write-Host "Error"
     }
 
     exit $winscpResult
-
-    #Remove file after transfer if $remove_file is set
-    Start-Sleep -s 1
-    if ($del_file -eq 1) {
-        Remove-Item $fpath\$ft
-    }
 }
 
 function convert_file($file) {
@@ -72,18 +74,22 @@ function convert_file($file) {
         #IF NOT H264 & MP4, CONVERT
         if (($file.Extension -ne '.mp4' -AND $vidC -eq 'h264') -OR ($file.Extension -eq '.mp4' -AND $vidC -ne 'h264')) {
             
-            & $ffmpeg -i $fpath\$file -c:v libx264 -preset fast -crf 22 -c:a aac "$fpath\$fileBase.mp4"
+            & $ffmpeg -i $fpath\$file -c:v libx264 -preset fast -crf 23 -c:a aac "$fpath\$fileBase.mp4"
             
             #If transfer enabled and file exists, transfer
             if ($enable_transfer -eq 1 -AND (Get-Item -Path "$fpath\$fileBase.mp4" )) {
                 transfer_file("$fileBase.mp4")
+
+                #delete original file after conversion and transfer
+                Remove-Item -Path $file
             }
-        }    
+        } 
+        #transfer if mp4 and h264 codec   
         else {
             transfer_file("$file")
         }
-            
     }
+    #transfer if subtitle
     else {
         transfer_file("$file")
     }
@@ -92,19 +98,18 @@ function convert_file($file) {
 #Loop through files in fpath location and send to convert_file function for processing
 $files = Get-ChildItem -File "$fpath"
 foreach ($f in $files) {
-    #File is movie
+    #File is movie or subtitle
     if ($f.Extension -in $ext_array) {
         convert_file($f)
     }
     else {
-        Remove-Item $fpath\$f
+        Remove-Item $f
     }
-    
 }
 
 #If the movie path does not equal the save folder path delete movie folder
 if ("$fpath" -ne "$path") {
-    Remove-Item $fpath
+    Remove-Item $fpath -Recurse
 }
 
 Write-Host -NoNewLine 'Press any key to continue...';
