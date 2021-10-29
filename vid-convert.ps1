@@ -31,30 +31,31 @@ $rem_saveFolder = "/media/PIPLEX"
 
 function transfer_file($ft) {
 
-    #Call winscp and pass parameters
-    & "$winSCPLoc\WinSCP.com" `
-        /log="$winSCPLoc\WinSCP.log" /ini=nul `
-        /command `
-        "open sftp://pi:Brymed%232020@192.168.1.121/ -hostkey=`"`"ssh-ed25519 255 Kdrw/Wlbl2hUooxtp4idYQUllH54YYSXT8O8UtKb2hw=`"`"" `
-        "put $fpath\$ft $rem_saveFolder/$cat/" `
-        "exit"
+    if ($enable_transfer -eq 1 -AND (Get-Item -Path "$fpath\$ft" )) {
+        #Call winscp and pass parameters
+        & "$winSCPLoc\WinSCP.com" `
+            /log="$winSCPLoc\WinSCP.log" /ini=nul `
+            /command `
+            "open sftp://pi:Brymed%232020@192.168.1.121/ -hostkey=`"`"ssh-ed25519 255 Kdrw/Wlbl2hUooxtp4idYQUllH54YYSXT8O8UtKb2hw=`"`"" `
+            "put $fpath\$ft $rem_saveFolder/$cat/" `
+            "exit"
 
-    $winscpResult = $LastExitCode
-    if ($winscpResult -eq 0) {
+        $winscpResult = $LastExitCode
+        if ($winscpResult -eq 0) {
 
-        Start-Sleep -s 1
+            Start-Sleep -s 1
 
-        #If transfer is successful delete movie from folder
-        if ($del_file -eq 1) {
-            Remove-Item $fpath\$ft
+            #If transfer is successful delete movie from folder
+            if ($del_file -eq 1) {
+                Remove-Item $fpath\$ft
+                Write-Host "Removed -  $ft"
+            }
+
         }
-
+        else {
+            Write-Host "Error with WinSCP Transfer"
+        }
     }
-    else {
-        Write-Host "Error"
-    }
-
-    exit $winscpResult
 }
 
 function convert_file($file) {
@@ -74,22 +75,22 @@ function convert_file($file) {
         #IF NOT H264 & MP4, CONVERT
         if (($file.Extension -ne '.mp4' -AND $vidC -eq 'h264') -OR ($file.Extension -eq '.mp4' -AND $vidC -ne 'h264')) {
             
-            & $ffmpeg -i $fpath\$file -c:v libx264 -preset fast -crf 23 -c:a aac "$fpath\$fileBase.mp4"
+            & $ffmpeg -i $fpath\$file -c:v libx264 -preset veryfast -crf 23 -c:a aac "$fpath\$fileBase.mp4"
             
-            #If transfer enabled and file exists, transfer
-            if ($enable_transfer -eq 1 -AND (Get-Item -Path "$fpath\$fileBase.mp4" )) {
-                transfer_file("$fileBase.mp4")
+            #Pass to transfer function for processing
+            transfer_file("$fileBase.mp4")
 
-                #delete original file after conversion and transfer
-                Remove-Item -Path $file
-            }
-        } 
+            #delete original file after conversion
+            Remove-Item  $fpath\$file
+            Write-Host "Removed -  $file"
+        }
         #transfer if mp4 and h264 codec   
         else {
             transfer_file("$file")
         }
-    }
-    #transfer if subtitle
+    } 
+  
+    #Pass to transfer function for processing subtitle
     else {
         transfer_file("$file")
     }
@@ -103,13 +104,15 @@ foreach ($f in $files) {
         convert_file($f)
     }
     else {
-        Remove-Item $f
+        Remove-Item $fpath\$f
+        Write-Host "Removed -  $f"
     }
 }
 
 #If the movie path does not equal the save folder path delete movie folder
 if ("$fpath" -ne "$path") {
     Remove-Item $fpath -Recurse
+    Write-Host "Removed -  $fpath"
 }
 
 Write-Host -NoNewLine 'Press any key to continue...';

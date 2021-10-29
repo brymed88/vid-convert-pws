@@ -8,17 +8,15 @@ This is a powershell script that will convert multiple video file formats to mp4
 
 Prerequisites:
 
-Set the global variables notated in the convert.sh file. These variables will tell the script where your saved movies files should be located and whether or not you want to utilize an SFTP transfer after conversion.
+Set the global variables notated in the vid-convert.ps1 file. These variables will tell the script where your saved movies files should be located and whether or not you want to utilize an SFTP transfer after conversion.
 
-Note: If using SFTP transfer an ssh key needs to be created. A decent article on how to accomplish this can be found on Tech Republic - https://www.techrepublic.com/article/how-to-use-secure-copy-with-ssh-key-authentication/. Once created the script needs to be updated to point to your local ssh file and the SFTP variables for IP, Username need to be set. Lastly alter the variable "enable_transfer" from 0 to 1 to enable SFTP within the script.
+Note: If using SFTP transfer an ssh key needs to be created. A decent article on how to accomplish this can be found on WINscp at https://winscp.net/eng/docs/guide_public_key. Once created the script needs to be updated to include your unique string. Lastly alter the variable "enable_transfer" from 0 to 1 to enable SFTP within the script.
 
 -----------------------------------------------------------------------------------------------------------------
 
 POWERSHELL USAGE:
 
-This script can easily be ran from the terminal window by entering the below command.
-
-Note: In the below example "/home/Dev/vid-convert-script/convert.sh" is the location of this script on my file system. Depending on the location you select to clone the script this will need to be adjusted.
+This script can easily be ran from the powershell window by entering the below command.
 
 Change the below values
 
@@ -27,7 +25,7 @@ Change the below values
     Note: Label that is used in the FTP transfer file path. For example if label is "Shows" the ftp transfer would save to /remoteip/folder/Shows. If videos are not categorized this way on your system leave quotes empty ""
 * Full save path - full save path for video file ie "/home/user/Downloads/mountain men". If the video is not under a subfolder, this value would be "/home/user/Downloads/mountain men.avi"
 
-bash /home/Dev/vid-convert-script/convert.sh "/home/user/Downloads" "Shows" "/home/user/Downloads/mountain men"
+powershell.exe -ExecutionPolicy Bypass -File C:\Users\bryce\Dev\projects\vid-convert-pws\vid-convert.ps1 "C:\Users\bryce\Videos\TOR\temp" "Shows" "C:\Users\bryce\Videos\TOR\temp\Legacies.S04E02.720p.HDTV.x264-SYNCOPY\"
 
 ----------------------------------------------------------------------------------------------------------------
 
@@ -39,11 +37,11 @@ qBITTORRENT USAGE:
 
 Within qBittorrent Under Settings->Downloads-> Run External Program On Torrent Completion, paste the below snippet
 
-Note: In the below example "/home/Dev/vid-convert-script/convert.sh" is the location of this script on my file system. Depending on the git clone location, this will need to be adjusted.
+Note: In the below example "C:\Users\bryce\Dev\projects\vid-convert-pws\vid-convert.ps1" is the location of this script on my file system. Depending on the git clone location, this will need to be adjusted.
 
-/home/Dev/vid-convert-script/convert.sh "%D" "%L" "%R"
+powershell.exe -ExecutionPolicy Bypass -File C:\Users\bryce\Dev\projects\vid-convert-pws\vid-convert.ps1 "C:\Users\bryce\Videos\TOR\temp" "Shows" "C:\Users\bryce\Videos\TOR\temp\Legacies.S04E02.720p.HDTV.x264-SYNCOPY\"
 
-After torrent finishes downloading qBittorrent will kick off the convert.sh script and process the video conversion.
+After torrent finishes downloading qBittorrent will kick off the vid-convert.ps1 script and process the video conversion.
 
 ----------------------------------------------------------------------------------------------------------------
 
