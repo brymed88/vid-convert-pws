@@ -83,7 +83,7 @@ function process_file() {
         
                 #IF NOT H264 & MP4, CONVERT
                 if (($file_ext -ne '.mp4' -AND $vidC -eq 'h264') -OR ($file_ext -eq '.mp4' -AND $vidC -ne 'h264')) {
-                    & $ffmpeg -i $joined_path -c:v libx264 -preset veryfast -crf 23 -c:a aac "$lit_path\$fileBase.mp4"
+                    & $ffmpeg -i $joined_path -c:v libx264 -preset medium -crf 24 -c:a aac "$lit_path\$fileBase.mp4"
                     
                     #Pass to transfer function for processing
                     transfer_file("$lit_path\$fileBase.mp4")
