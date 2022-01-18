@@ -97,21 +97,24 @@ function convert_file($file) {
 }
 
 #Loop through files in fpath location and send to convert_file function for processing
-$files = Get-ChildItem -File "$fpath"
+$files = Get-ChildItem -LiteralPath $fpath
+
 foreach ($f in $files) {
+   
     #File is movie or subtitle
     if ($f.Extension -in $ext_array) {
         convert_file($f)
+        Write-Host "Convert - $f"
     }
     else {
-        Remove-Item $fpath\$f
-        Write-Host "Removed -  $f"
+        Remove-Item  -LiteralPath $fpath\$f
+        Write-Host "Removed -  $path\$f"
     }
 }
 
 #If the movie path does not equal the save folder path delete movie folder
 if ("$fpath" -ne "$path") {
-    Remove-Item $fpath -Recurse
+    Remove-Item -LiteralPath $fpath -Recurse
     Write-Host "Removed -  $fpath"
 }
 
