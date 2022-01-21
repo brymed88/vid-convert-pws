@@ -33,6 +33,7 @@ $rem_saveFolder = "/media/PIPLEX"
 function transfer_file($file) {
 
     Write-Host "Transferring - $file to server"
+    Write-Host $file
     if ($enable_transfer -eq 1 -AND (Get-Item -LiteralPath $file )) {
         #Call winscp and pass parameters
         & "$winSCPLoc\WinSCP.com" `
@@ -83,7 +84,7 @@ function process_file() {
         
                 #IF NOT H264 & MP4, CONVERT
                 if (($file_ext -ne '.mp4' -AND $vidC -eq 'h264') -OR ($file_ext -eq '.mp4' -AND $vidC -ne 'h264')) {
-                    & $ffmpeg -i $joined_path -c:v libx264 -preset medium -crf 24 -c:a aac "$lit_path\$fileBase.mp4"
+                    & $ffmpeg -i $lit_path\$f -c:v libx264 -preset medium -crf 24 -c:a aac "$lit_path\$fileBase.mp4"
                     
                     #Pass to transfer function for processing
                     transfer_file("$lit_path\$fileBase.mp4")
@@ -95,16 +96,16 @@ function process_file() {
                 }
                 #transfer if mp4 and h264 codec   
                 else {
-                    transfer_file("$f")
+                   transfer_file($joined_path)
                 }
             } 
             #Pass to transfer function for processing subtitle
             else {
-                transfer_file("$f")
+                transfer_file($joined_path)
             }
         }
         else {
-            Remove-Item  -LiteralPath $lit_path\$f
+            Remove-Item  -LiteralPath $joined_path
             Write-Host "Removing file - $f - incorrect file type!"
         }
     }
