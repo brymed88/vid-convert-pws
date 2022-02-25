@@ -17,7 +17,7 @@ download the WinSCP .net Assembly from https://winscp.net/eng/downloads.php#addi
 
 <hr />
 
-<h2>USAGE</h2>
+<h2>Usage</h2>
 <p>
 The convert.ps1 script can easily be ran from the powershell window or by another program by entering the below command.
 </p>
@@ -25,12 +25,15 @@ The convert.ps1 script can easily be ran from the powershell window or by anothe
 Change the below values
 </p>
 <ul>
+
 <li>File Location - Location of the convert.ps1 file</li>
-<li>Label - ie.. shows, movies etc..</li><br/>
-    Note: Label is used in the FTP transfer file path. For example if label is "Shows" the ftp transfer would save to /remoteip/folder/Shows. If videos are not categorized this way on your system leave quotes empty ""
-<br/>
+
+<li>Label - ie.. shows, movies etc..</li>Label is used in the Sftp transfer file path. For example if label is "Shows" the sftp transfer would save to /remoteip/folder/Shows. If your videos are not categorized this way leave quotes empty ""
+
 <li>Full save path - full save path for video file on your system will be different than mine. This script is setup to take either a folder containing video files or the direct path to a video file.</li>
+
 </ul>
+
 <pre>
 <code>
 powershell.exe -ExecutionPolicy Bypass -File C:\Users\youruser\vid-convert-pws\convert.ps1 "Shows" "C:\Users\youruser\videofile"
