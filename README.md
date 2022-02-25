@@ -1,18 +1,25 @@
 # vid-convert-pws
 
-Intro:
+<h1>Summary</h1>
 
-Included is two powershell scripts. One that will convert multiple video file formats to mp4 and h264 codec. The second that will convert / compress a current video file. I developed these scripts to automatically convert video files and upload them to a raspberryPI server that is running Plex Media Server software. The reason for conversion is that the raspberryPi, while powerful lacks the processing power to transcode movies on the fly. By converting to the h264 format there is no need to transcode the video when watching movies on most modern day smart TV's.
+<p>Included is two powershell scripts. One that will convert multiple video file formats to mp4 and h264 codec. The second that will convert / compress a current video file. I developed these scripts to automatically convert video files and upload them to a raspberryPI server that is running Plex Media Server software. The reason for conversion is that the raspberryPi, while powerful lacks the processing power to transcode movies on the fly. By converting to the h264 format there is no need to transcode the video when watching movies on most modern day smart TV's.
+</p>
 
-----------------------------------------------------------------------------------------------------------------
+<hr/>
 
-Prerequisites:
+<h2>Prerequisites:</h2>
 
-Set the global variables notated in the vid-convert.ps1 file. These variables will tell the script where your saved movies files should be located and whether or not you want to utilize an SFTP transfer after conversion.
 
-Note: If using SFTP transfer an ssh key needs to be created. A decent article on how to accomplish this can be found on WINscp at https://winscp.net/eng/docs/guide_public_key. Once created the script needs to be updated to include your unique string. Lastly alter the variable "enable_transfer" from 0 to 1 to enable SFTP within the script.
 
------------------------------------------------------------------------------------------------------------------
+<p>Set the global variables notated in the convert.ps1 file. </p>
+
+<p>Note: If using SFTP transfer an ssh key needs to be created. A decent article on how to accomplish this can be found on WINscp at <a href="https://winscp.net/eng/docs/guide_public_key">https://winscp.net/eng/docs/guide_public_key</a>. Once created the script needs to be updated to include your unique string. Lastly alter the variable "enable_transfer" from 0 to 1 to enable SFTP within the script.</p>
+
+download the WinSCP .net Assembly from https://winscp.net/eng/downloads.php#additional
+
+navigate to winscp.exe within the extracted folder and run
+
+<hr />
 
 POWERSHELL USAGE:
 
