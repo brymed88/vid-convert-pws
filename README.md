@@ -9,7 +9,9 @@
 
 <h2>Prerequisites:</h2>
 
-<p>Set the global variables notated in the convert.ps1 file. </p>
+<p>Set the global variables notated in the convert.ps1 file.</p>
+
+<p>Download ffmpeg from <a href="https://ffmpeg.org/download.html">https://ffmpeg.org/download.html</a>. I would recommend getting one of the compiled versions shown on the above page. Once downloaded move to a permanent location on your system and update the convert.sh file variables to point to this location.</p> 
 
 <p>Note: If using SFTP transfer an ssh key needs to be created. A guide on how to accomplish this can be found at <a href="https://winscp.net/eng/docs/guide_public_key">https://winscp.net/eng/docs/guide_public_key</a>. Once created the script needs to be updated to include your ssh key file location and your ssh fingerprint. Lastly alter the variable "enable_transfer" from 0 to 1 to enable SFTP within the script.</p>
 

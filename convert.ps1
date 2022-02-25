@@ -33,14 +33,14 @@ $del_parent =1
 $sftp_transfer = 1
 
 #   FFMPEG and WINSCP folders
-$ffmpeg_location = "D:\TOR\ffmpeg-5.0-essentials_build\bin"
-$winscp_location = "D:\TOR\WinSCP-5.19.6-Automation"
+$ffmpeg_location = "D:\ffmpeg-5.0-essentials_build\bin"
+$winscp_location = "D:\WinSCP-5.19.6-Automation"
 
 #   Remote Server Information For SFTP Transfer. Alter these values to match your environment.
-$ssh_private_key_loc = "C:\Users\bryce\.ssh\rsa-piplex.ppk"
-$ssh_fingerprint = "ssh-ed25519 255 Kdrw/Wlbl2hUooxtp4idYQUllH54YYSXT8O8UtKb2hw="
-$remote_address = "192.168.1.121"
-$remote_user = "pi"
+$ssh_private_key_loc = "MASKED LOCATION OF PPK FILE"
+$ssh_fingerprint = "MASKED SSH FINGERPRINT"
+$remote_address = "MASKED SERVER IP ADDRESS"
+$remote_user = "MASKED USER"
 $remote_folder = "/media/PIPLEX"
 
 function transfer_file($file) {
@@ -118,6 +118,7 @@ function ConvertFile($path){
                     Write-Host "Info: Running ffmpeg conversion"
                     & $ffmpeg -v quiet -stats -i $file.FullName -c:v libx264 -preset $($preset) -crf $($crf_quality) -c:a $($desired_acodec) $tmp_file
                     Write-Host "Info: Conversion complete!"
+                    
                     #   delete original file after conversion
                     Write-Host "Warn: Removing original file -  $($file.Name)"
                     Remove-Item  -LiteralPath $file.FullName
