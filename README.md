@@ -9,8 +9,6 @@
 
 <h2>Prerequisites:</h2>
 
-
-
 <p>Set the global variables notated in the convert.ps1 file. </p>
 
 <p>Note: If using SFTP transfer an ssh key needs to be created. A guide on how to accomplish this can be found at <a href="https://winscp.net/eng/docs/guide_public_key">https://winscp.net/eng/docs/guide_public_key</a>. Once created the script needs to be updated to include your ssh key file location and your ssh fingerprint. Lastly alter the variable "enable_transfer" from 0 to 1 to enable SFTP within the script.</p>
@@ -19,48 +17,24 @@ download the WinSCP .net Assembly from https://winscp.net/eng/downloads.php#addi
 
 <hr />
 
-<h2>POWERSHELL USAGE</h2>
+<h2>USAGE</h2>
 <p>
-The convert.ps1 script can easily be ran from the powershell window by entering the below command.
+The convert.ps1 script can easily be ran from the powershell window or by another program by entering the below command.
 </p>
 <p>
 Change the below values
 </p>
 <ul>
-<li>Label - ie.. shows, movies etc..</li>
+<li>File Location - Location of the convert.ps1 file</li>
+<li>Label - ie.. shows, movies etc..</li><br/>
     Note: Label is used in the FTP transfer file path. For example if label is "Shows" the ftp transfer would save to /remoteip/folder/Shows. If videos are not categorized this way on your system leave quotes empty ""
-
-<li>Full save path - full save path for video file ie "/home/user/Downloads/mountain_men". If the video is not under a subfolder, this value would be "/home/user/Downloads/mountain_men.avi"</li>
+<br/>
+<li>Full save path - full save path for video file on your system will be different than mine. This script is setup to take either a folder containing video files or the direct path to a video file.</li>
 </ul>
 <pre>
 <code>
-powershell.exe -ExecutionPolicy Bypass -File C:\Users\bryce\Dev\projects\vid-convert-pws\convert.ps1 "Shows" "C:\Users\bryce\Videos\tmp\mountain_men"
+powershell.exe -ExecutionPolicy Bypass -File C:\Users\youruser\vid-convert-pws\convert.ps1 "Shows" "C:\Users\youruser\videofile"
 </code>
 </pre>
------------------------------------------------------
 
-The compress.ps1 script can be ran from a powershell window by entering the below command.
-
-powershell.exe -ExecutionPolicy Bypass -File C:\Users\bryce\Dev\projects\vid-convert-pws\compress.ps1 "File location of original file" "Where to save compressed file"
-
-----------------------------------------------------------------------------------------------------------------
-
-qBITTORRENT USAGE:
-
-%D - Save Path
-%L - Torrent Label
-%R - Full Save Path - includes folder torrent is in
-
-Within qBittorrent Under Settings->Downloads-> Run External Program On Torrent Completion, paste the below snippet
-
-Note: In the below example "C:\Users\bryce\Dev\projects\vid-convert-pws\vid-convert.ps1" is the location of this script on my file system. Depending on the git clone location, this will need to be adjusted.
-
-powershell.exe -ExecutionPolicy Bypass -File C:\Users\bryce\Dev\projects\vid-convert-pws\convert.ps1 "C:\Users\bryce\Videos\TOR\temp" "Shows" "C:\Users\bryce\Videos\TOR\temp\Legacies.S04E02.720p.HDTV.x264-SYNCOPY\"
-
-After torrent finishes downloading qBittorrent will kick off the vid-convert.ps1 script and process the video conversion.
-
-----------------------------------------------------------------------------------------------------------------
-
-Summary:
-
-Thank you for checking out my project and feel free to submit comments/improvement ideas!
+<hr/>
