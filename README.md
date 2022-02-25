@@ -27,13 +27,16 @@ The convert.ps1 script can easily be ran from the powershell window by entering 
 Change the below values
 </p>
 <ul>
-<li>Save path - location where video is stored ie "/home/user/Downloads"</li>
-<li>Torrent label - Torrent label ie shows, movies etc..</li>
-    Note: Label that is used in the FTP transfer file path. For example if label is "Shows" the ftp transfer would save to /remoteip/folder/Shows. If videos are not categorized this way on your system leave quotes empty ""
-<li>Full save path - full save path for video file ie "/home/user/Downloads/mountain men". If the video is not under a subfolder, this value would be "/home/user/Downloads/mountain men.avi"</li>
-</ul>
-powershell.exe -ExecutionPolicy Bypass -File C:\Users\bryce\Dev\projects\vid-convert-pws\convert.ps1 "C:\Users\bryce\Videos\TOR\temp" "Shows" "C:\Users\bryce\Videos\TOR\temp\Legacies.S04E02.720p.HDTV.x264-SYNCOPY\"
+<li>Label - ie.. shows, movies etc..</li>
+    Note: Label is used in the FTP transfer file path. For example if label is "Shows" the ftp transfer would save to /remoteip/folder/Shows. If videos are not categorized this way on your system leave quotes empty ""
 
+<li>Full save path - full save path for video file ie "/home/user/Downloads/mountain_men". If the video is not under a subfolder, this value would be "/home/user/Downloads/mountain_men.avi"</li>
+</ul>
+<pre>
+<code>
+powershell.exe -ExecutionPolicy Bypass -File C:\Users\bryce\Dev\projects\vid-convert-pws\convert.ps1 "Shows" "C:\Users\bryce\Videos\tmp\mountain_men"
+</code>
+</pre>
 -----------------------------------------------------
 
 The compress.ps1 script can be ran from a powershell window by entering the below command.
