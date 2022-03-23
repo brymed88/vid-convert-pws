@@ -5,7 +5,7 @@
 
 #   Argument Variables - Do not change unless use case is understood
 #   Variables for path, category and full file path arguments
-
+ 
 $inputObj = (
     @{
         category = $Args[0]
