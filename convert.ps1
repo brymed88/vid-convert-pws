@@ -8,7 +8,7 @@
  
 $inputObj = (
     @{
-        category = $Args[0]
+        category  = $Args[0]
         full_path = $Args[1]
     }
 )
@@ -16,46 +16,47 @@ $inputObj = (
 #   Global change variables - Change to configure for your environment.
 
 #   Filetype array
-$ext_array = @(".avi", ".flv", ".mkv", ".mov", ".mp4", ".wmv", ".srt", ".en.srt")
+$ext_array = @(".avi", ".flv", ".mkv", ".mov", ".mp4", ".m4v", ".wmv", ".srt", ".en.srt")
 
 #   FFMPEG variables
 $crf_quality = 24
 $preset = "medium"
 $desired_acodec = "aac"
 
-#   This setting will remove non MP4 files after processing and remove the M | 0=no 1=yes
+#   This setting will remove non MP4 files after processing and remove non video files in folder | 0=no 1=yes
 $del_file = 1
 
 #   Remove parent directory upon conversion completion | 0=no 1=yes
-$del_parent =1
+$del_parent = 1
 
 #   Enable SFTP Transfer | 0=no 1=yes
 $sftp_transfer = 1
 
 #   FFMPEG and WINSCP folders
-$ffmpeg_location = "D:\ffmpeg-5.0-essentials_build\bin"
-$winscp_location = "D:\WinSCP-5.19.6-Automation"
+$ffmpeg_location = "D:\tor\executables\ffmpeg\bin"
+$winscp_location = "D:\tor\executables\WinSCP-5.21.2-Automation"
 
 #   Remote Server Information For SFTP Transfer. Alter these values to match your environment.
-$ssh_private_key_loc = "MASKED LOCATION OF PPK FILE"
-$ssh_fingerprint = "MASKED SSH FINGERPRINT"
-$remote_address = "MASKED SERVER IP ADDRESS"
-$remote_user = "MASKED USER"
-$remote_folder = "/media/PIPLEX"
+$ssh_fingerprint = "ssh-ed25519 255 3WFfI1chFGA81IBcr3wsGOL6qDopBxvSzdRv+WJUqbY"
+$remote_address = "192.168.1.119"
+$remote_user = "brymed"
+$remote_password = "Brymed#2022"
+$remote_folder = "/media/Videos"
 
 function transfer_file($file) {
 
-    try  {
+    try {
         # Load WinSCP .NET assembly
         Add-Type -Path "$($winscp_location)\WinSCPnet.dll"
  
         Write-Host "Info: Transferring file to remote server"
-        # Setup session options
+
+        # Set up session options
         $sessionOptions = New-Object WinSCP.SessionOptions -Property @{
-            Protocol = [WinSCP.Protocol]::Sftp
-            HostName = $remote_address
-            UserName = $remote_user
-            SshPrivateKeyPath = $ssh_private_key_loc
+            Protocol              = [WinSCP.Protocol]::Sftp
+            HostName              = $remote_address
+            UserName              = $remote_user
+            Password              = $remote_password
             SshHostKeyFingerprint = $ssh_fingerprint
         }
  
@@ -70,86 +71,74 @@ function transfer_file($file) {
             $transferOptions.TransferMode = [WinSCP.TransferMode]::Binary
  
             $transferResult =
-                $session.PutFiles("$($file)", "$($remote_folder)/$($inputObj.category)/", $False, $transferOptions)
+            $session.PutFiles("$($file)", "$($remote_folder)/$($inputObj.category)/", $False, $transferOptions)
  
             # Throw on any error
             $transferResult.Check()
  
             # Print results
-            foreach ($transfer in $transferResult.Transfers)
-            {
+            foreach ($transfer in $transferResult.Transfers) {
                 Write-Host "Info: Upload succeeded"
                 Write-Host "Warn: Removing file after transfer"
                 Remove-Item -LiteralPath $file
             }
         }
-    finally {
-        # Disconnect, clean up
-        $session.Dispose()
-    }
+        finally {
+            # Disconnect, clean up
+            $session.Dispose()
+        }
  
+    }
+    catch {
+        Write-Host "Error: $($_.Exception.Message)"
+        exit 1
+    }
 }
-catch   {
-    Write-Host "Error: $($_.Exception.Message)"
-    exit 1
-}}
 
-function ConvertFile($path){
+function ConvertFile($path) {
 
     $file = Get-Item -LiteralPath $path
-    if ($file.Extension -ne '.srt' -Or $file.Extension -ne '.en.srt') {
+   
+    if ($file.Extension -ne ".srt" -And $file.Extension -ne ".en.srt") {
 
-           
+        #   Assign Video/Audio codecs to variables
+        $ffprobe = Get-Command -CommandType Application -Name "$($ffmpeg_location)\ffprobe.exe" -ErrorAction SilentlyContinue
+        $ffprobe = $ffprobe.Source
+        $ffmpeg = Get-Command -CommandType Application -Name "$($ffmpeg_location)\ffmpeg.exe" -ErrorAction SilentlyContinue
+        $ffmpeg = $ffmpeg.Source
 
-            #   Assign Video/Audio codecs to variables
-            $ffprobe = Get-Command -CommandType Application -Name "$($ffmpeg_location)\ffprobe.exe" -ErrorAction SilentlyContinue
-            $ffprobe = $ffprobe.Source
-            $ffmpeg = Get-Command -CommandType Application -Name "$($ffmpeg_location)\ffmpeg.exe" -ErrorAction SilentlyContinue
-            $ffmpeg = $ffmpeg.Source
+        #$vcodec = $(& $ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nokey=1:noprint_wrappers=1 $file.FullName)
 
-            $vcodec = $(& $ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of default=nokey=1:noprint_wrappers=1 $file.FullName)
+        #convert to reduce file size no matter the extension
+        Write-Host "Info: Beginning conversion of - $($file.FullName)"
 
-                #   IF Codec does not equal H264 and MP4, CONVERT
-                if ($vcodec -ne 'h264' -Or $file.Extension -ne '.mp4') {
-                    Write-Host "Info: Beginning conversion of - $($file.name)"
+        $tmp_file = "$($file.DirectoryName)\tmp_$($file.BaseName).mp4"
 
-                    $tmp_file = "$($file.DirectoryName)\tmp_$($file.BaseName).mp4"
-
-                    Write-Host "Info: Running ffmpeg conversion"
-                    & $ffmpeg -v quiet -stats -i $file.FullName -c:v libx264 -preset $($preset) -crf $($crf_quality) -c:a $($desired_acodec) $tmp_file
-                    Write-Host "Info: Conversion complete!"
+        & $ffmpeg -v quiet -stats -i $file.FullName -c:v libx264 -preset $($preset) -crf $($crf_quality) -c:a $($desired_acodec) $tmp_file
+        Write-Host "Info: File Conversion complete!"
                     
-                    #   delete original file after conversion
-                    Write-Host "Warn: Removing original file -  $($file.Name)"
-                    Remove-Item  -LiteralPath $file.FullName
+        #   delete original file after conversion
+        Remove-Item  -LiteralPath $file.FullName
 
-                    #   Rename converted file to the original file name that is now deleted
-                    Rename-Item -LiteralPath $tmp_file -NewName "$($file.BaseName).mp4"
+        #   Rename converted file to the original file name that is now deleted
+        Rename-Item -LiteralPath $tmp_file -NewName "$($file.BaseName).mp4"
 
-                    #   If sftp_transfer enabled pass to sftp_transfer function
-                    if($sftp_transfer -eq 1){
-                        transfer_file("$($file.DirectoryName)\$($file.BaseName).mp4")
-                    }
-                    
-                }
-
-                #   Sftp_transfer if mp4 and h264 codec
-                else{
-                        Write-Host "Info: Conversion not required - Beginning transfer of $($file.BaseName)"
-                        transfer_file($file.FullName)
-                }
-
-    }
-    else    {
-            #   Rename srt file with en extension
-            Rename-Item -LiteralPath $file -NewName "$($file.BaseName).en.srt"
-                
-            if($sftp_transfer -eq 1){
-                transfer_file("$($file.DirectoryName)\$($file.BaseName).en.srt")
-            }
+        #   If sftp_transfer enabled pass to sftp_transfer function
+        if ($sftp_transfer -eq 1) {
+            transfer_file("$($file.DirectoryName)\$($file.BaseName).mp4")
         }
-
+                    
     }
+    else {
+        #   Rename srt file with en extension
+        Rename-Item -LiteralPath $file -NewName "$($file.BaseName).en.srt"
+                
+        if ($sftp_transfer -eq 1) {
+            transfer_file("$($file.DirectoryName)\$($file.BaseName).en.srt")
+        }
+    }
+
+}
 
 
 #   Identify files before sending to ConvertFile function for video conversion
@@ -164,7 +153,7 @@ License: MIT License
 "@
 
 #   If path supplied is file
-if((Test-Path -LiteralPath $inputObj.full_path -PathType leaf) -eq $true){
+if ((Test-Path -LiteralPath $inputObj.full_path -PathType leaf) -eq $true) {
     
     #   Write-Host "File Provided"
     
@@ -179,36 +168,59 @@ if((Test-Path -LiteralPath $inputObj.full_path -PathType leaf) -eq $true){
 #   Path supplied is directory
 else {
     
-    #   Write-Host "Directory provided"
+    
+    Write-Host "Info: Directory Provided -" $inputObj.full_path
 
     $files = Get-ChildItem -LiteralPath $inputObj.full_path
+    
     foreach ($file in $files) {
-        $path_to_file = "$($file.Directory)\$($file)"
-        
-        if ($file.Extension -in $ext_array) {
-            ConvertFile($path_to_file)
+        # Write-Host $file
+
+        #if sub-directory transverse.
+        if ((Test-Path -Path $file.FullName -PathType Container) -eq $true) {
+            Write-Host "Info: Found sub directory -" $file.FullName
+
+            $subfile = Get-ChildItem -LiteralPath $file.FullName
+
+            foreach ($sub in $subfile) {
+                if ($sub.Extension -in $ext_array) {
+                    ConvertFile($sub.FullName)
+                }
+                else {
+                    if ($del_file -eq 1) {
+                        Write-Host 'Warn:' $sub.name "- not present in the extention array - removing..."
+                        Remove-Item  -LiteralPath $sub.FullName
+                    }
+                }
+            }
         }
         else {
-            
-            if($del_file -eq 1){
-                #rm file
-                Write-Host 'Warn: ' $file.name " - not present in the extention array - removing..."
-                Remove-Item  -LiteralPath $path_to_file
+            if ($file.Extension -in $ext_array) {
+                ConvertFile($file.FullName)
             }
+            
+            else {
+                if ($del_file -eq 1) {
+                    Write-Host 'Warn:' $file.name "- not present in the extention array - removing..."
+                    Remove-Item  -LiteralPath $file.FullName
+                }
 
+            }
         }
+
+     
 
     }
 }
 
 #if directory empty and exists, remove
-if($del_parent -eq 1){
+if ($del_parent -eq 1) {
     if (((Test-Path -Path "$($inputObj.full_path)\*") -eq $False) -AND (Test-Path -Path "$($inputObj.full_path)") -eq $True) {
         Write-Host "Info: Directory empty, removing folder - $($inputObj.full_path)"
         Remove-Item -LiteralPath $inputObj.full_path
     } 
 
-    else{
+    else {
         Write-Host "Warn: Parent folder not empty, skipping removal"
     }   
 }
