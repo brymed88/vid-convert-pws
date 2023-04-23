@@ -2,7 +2,7 @@
 
 <h1>Summary</h1>
 
-<p>The purpose of this product was to create a powershell script for converting multiple video file formats to mp4 and h264 codec. I developed these scripts to automatically convert video files and upload them to a raspberryPI server that is running Plex Media Server software. The reason for conversion is that the raspberryPi while powerful, lacks the processing power to transcode movies on the fly. By converting to the h264 format there is no need to transcode the video when watching movies on most modern day smart TV's.
+<p>The purpose of this project was to create a powershell script for converting multiple video file formats to mp4 and h264 codec. I developed these scripts to automatically convert video files and upload them to a raspberryPI server that is running Plex Media Server software. The reason for conversion is that the raspberryPi while powerful, lacks the processing power to transcode movies on the fly. By converting to the h264 format there is no need to transcode the video when watching movies on most modern day smart TV's.
 </p>
 
 <hr/>
