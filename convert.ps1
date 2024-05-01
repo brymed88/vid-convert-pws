@@ -58,7 +58,9 @@ function findFiles ($path) {
             }  
             else {
                 if ($Settings.delete_nonMovieFiles -eq $true) {
-                    Write-Host "Warn: Not in ext array, removing - $(($file))"
+
+                    displayMessage "Warn: Not in ext array, removing - $($file)"
+            
                     deleteFile $file.FullName
                 }
             }
@@ -77,14 +79,14 @@ findFiles($inputObj.full_path)
 if ($Settings.delete_parentFolder -eq $true) {
 
     if (((Test-Path -Path "$($inputObj.full_path)\*") -eq $False) -AND (Test-Path -Path "$($inputObj.full_path)") -eq $True) {
-        Write-Host "Info: Removing parent folder - $($inputObj.full_path)"
+        displayMessage "Info: Removing parent folder - $($inputObj.full_path)"
         deleteFile $inputObj.full_path
     } 
     else {
-        Write-Host "Warn: Parent folder not empty, skipping removal..."
+        displayMessage "Warn: Parent folder not empty, skipping removal..."
     }   
 
 }
 
-Write-Host -NoNewLine 'Press any key to continue...';
+dispayMessage -NoNewLine 'Press any key to continue...';
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');

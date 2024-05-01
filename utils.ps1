@@ -3,9 +3,9 @@
 ## Version: 2.0
 ## License: MIT License
 
-# CLEAN PATHNAME / FILENAME FROM CHARACTERS THAT CAN CAUSE ISSUES
 $Settings = Get-Content "$($PSScriptRoot)\settings.json" | Out-String | ConvertFrom-Json
 
+# CLEAN PATHNAME / FILENAME FROM CHARACTERS THAT CAN CAUSE ISSUES
 function cleanName($file) {
    
     $cleanedName = $file -replace '[^0-9a-zA-Z-.]+', ''
@@ -18,10 +18,21 @@ function cleanName($file) {
     return $file
 }
 
+#REMOVE FILE
 function deleteFile($path) {
     Remove-Item  -LiteralPath $path
 }
 
+#DISPLAY MESSAGE WITH LINE ABOVE
+function displayMessage($message) {
+    Write-Host @"
+
+    $($message) 
+"@
+    return
+}
+
+#CONVERT VIDEO FILE
 function ConvertFile($path) {
 
     $file = Get-Item -LiteralPath $path
@@ -35,8 +46,7 @@ function ConvertFile($path) {
         $ffmpeg = $ffmpeg.Source
 
         # Convert to reduce file size no matter the extension
-        Write-Host " "
-        Write-Host "Info: Converting - $($file.FullName)"
+        displayMessage "Info: Converting - $($file.FullName)"
 
         $tmp_file = "$($file.DirectoryName)\tmp.$($file.BaseName).mp4"
 
@@ -45,7 +55,7 @@ function ConvertFile($path) {
 
         & $ffmpeg -v quiet -stats -i $file.FullName -c:v libx264 -preset $($Settings.preset) -crf $($Settings.crf_quality) -c:a $($Settings.desired_acodec) $tmp_file
  
-        Write-Host "Info: File Conversion complete!"
+        displayMessage "Info: File Conversion complete!"
         
         if ($Settings.delete_file -eq $true) {
             # Delete original file after conversion
@@ -74,13 +84,14 @@ function ConvertFile($path) {
 
 }
 
+#TRANSFER FILE TO REMOTE SERVER
 function transferFile($fileToTransfer, $category) {
 
     try {
         # Load WinSCP .NET assembly
         Add-Type -Path "$($Settings.winscp_location)\WinSCPnet.dll"
-        Write-Host "Info: Transferring $($fileToTransfer) to remote"
-
+        displayMessage "Info: Transferring $($fileToTransfer) to remote"
+    
         # Set up session options
         $sessionOptions = New-Object WinSCP.SessionOptions -Property @{
             Protocol              = [WinSCP.Protocol]::Sftp
@@ -108,7 +119,8 @@ function transferFile($fileToTransfer, $category) {
  
             # Print results
             foreach ($transfer in $transferResult.Transfers) {
-                Write-Host "Info: Upload succeeded"
+                displayMessage "Info: Upload succeeded"
+                
                 return $fileToTransfer
             }
         }
@@ -118,7 +130,7 @@ function transferFile($fileToTransfer, $category) {
         }
     }
     catch {
-        Write-Host "Error: $($_.Exception.Message)"
+        displayMessage "Error: $($_.Exception.Message)"
         exit 1
     }
 }
