@@ -1,0 +1,34 @@
+{
+  "extension_array": [
+    ".avi",
+    ".flv",
+    ".mkv",
+    ".mov",
+    ".mp4",
+    ".m4v",
+    ".wmv",
+    ".srt",
+    ".en.srt"
+  ],
+
+  "delete_oldFile": false,
+  "delete_transferredFile": false,
+  "delete_nonMovieFiles": false,
+  "delete_parentFolder": false,
+  "sftp_transfer": false,
+  "clean_pathName": false,
+  "clean_fileName": false,
+
+  "crf_quality": 24,
+  "preset": "fast",
+  "desired_acodec": "aac",
+
+  "ffmpeg_location": "yourLocation/exec/ffmpeg-2023/bin",
+  "winscp_location": "yourLocation/WinSCP-6.1.2-Automation",
+
+  "ssh_fingerprint": "SSH_FINGERPRINT",
+  "remote_address": "REMOTE ADDRESS",
+  "remote_user": "USERNAME",
+  "remote_password": "PASSWORD",
+  "remote_folder": "DIRECTORY TO SAVE TO ON REMOTE"
+}
