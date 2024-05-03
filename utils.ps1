@@ -6,16 +6,20 @@
 $Settings = Get-Content "$($PSScriptRoot)\settings.json" | Out-String | ConvertFrom-Json
 
 # CLEAN PATHNAME / FILENAME FROM CHARACTERS THAT CAN CAUSE ISSUES
-function cleanName($file) {
-   
-    $cleanedName = $file -replace '[^0-9a-zA-Z-.]+', ''
+function cleanName($path) {
+    $file = Get-Item -LiteralPath "$($path)"
 
-    if ($file -notlike $cleanedName) {
+    $baseDir = Split-Path -Parent $file
+
+    $cleanedName = $file.Name -replace '[^0-9a-zA-Z-.]+', ''
+
+    if ($file.Name -notlike $cleanedName) {
         Rename-Item -LiteralPath $file.FullName -NewName $cleanedName
-        return  $cleanedName
+        
+        return  Join-Path -Path $baseDir -ChildPath $cleanedName
     }
 
-    return $file
+    return $file.FullName
 }
 
 #REMOVE FILE
@@ -27,14 +31,13 @@ function deleteFile($path) {
 function displayMessage($message) {
     Write-Host @"
 
-    $($message) 
+$($message) 
 "@
     return
 }
 
 #CONVERT VIDEO FILE
 function ConvertFile($path) {
-
     $file = Get-Item -LiteralPath $path
    
     if ($file.Extension -ne ".srt" -And $file.Extension -ne ".en.srt") {
@@ -46,7 +49,7 @@ function ConvertFile($path) {
         $ffmpeg = $ffmpeg.Source
 
         # Convert to reduce file size no matter the extension
-        displayMessage "Info: Converting - $($file.FullName)"
+        displayMessage "Info: Converting - $($file.Name)"
 
         $tmp_file = "$($file.DirectoryName)\tmp.$($file.BaseName).mp4"
 
@@ -85,12 +88,14 @@ function ConvertFile($path) {
 }
 
 #TRANSFER FILE TO REMOTE SERVER
-function transferFile($fileToTransfer, $category) {
+function transferFile($path, $category) {
+
+    $file = Get-Item -LiteralPath $path
 
     try {
         # Load WinSCP .NET assembly
         Add-Type -Path "$($Settings.winscp_location)\WinSCPnet.dll"
-        displayMessage "Info: Transferring $($fileToTransfer) to remote"
+        displayMessage "Info: Transferring $($file.Name) to remote"
     
         # Set up session options
         $sessionOptions = New-Object WinSCP.SessionOptions -Property @{
@@ -112,7 +117,7 @@ function transferFile($fileToTransfer, $category) {
             $transferOptions.TransferMode = [WinSCP.TransferMode]::Binary
  
             $transferResult =
-            $session.PutFiles("$($fileToTransfer)", "$($Settings.remote_folder)/$($category)/", $False, $transferOptions)
+            $session.PutFiles("$($file.FullName)", "$($Settings.remote_folder)/$($category)/", $False, $transferOptions)
  
             # Throw on any error
             $transferResult.Check()

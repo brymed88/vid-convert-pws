@@ -34,18 +34,18 @@ function findFiles ($path) {
         #IF DIRECTORY LOOP UNTIL ALL FILES FOUND
         if ((Test-Path -LiteralPath "$($file.FullName)" -PathType Container) -eq $true) {
             if ($Settings.clean_PathName -eq $true) {
-                $fileName = cleanName $fileName
+                $fileName = cleanName $fileName.FullName
             }
 
-            findFiles(Join-Path -Path $path -ChildPath $fileName)
+            findFiles($fileName)
         }
         else {
             if ($file.Extension -in $Settings.extension_array) {
                 if ($Settings.clean_FileName -eq $true) {
-                    $fileName = cleanName $fileName
+                    $fileName = cleanName $fileName.FullName
                 }
 
-                $convert = ConvertFile($fileName.FullName)
+                $convert = ConvertFile($fileName)
 
                 if ($Settings.sftp_transfer -eq $true) {
                     
@@ -60,7 +60,6 @@ function findFiles ($path) {
                 if ($Settings.delete_nonMovieFiles -eq $true) {
 
                     displayMessage "Warn: Not in ext array, removing - $($file)"
-            
                     deleteFile $file.FullName
                 }
             }
@@ -69,24 +68,27 @@ function findFiles ($path) {
 }
 
 
-    
- 
-    
-findFiles($inputObj.full_path)
+$initialPath = "$($inputObj.full_path)".Replace('\/$', '')  
 
+if ($Settings.clean_PathName -eq $true -And (Test-Path -LiteralPath $initialPath -PathType Container) -eq $true) {
+    $initialPath = cleanName $initialPath
+}
+    
+findFiles($initialPath)
 
 #if directory empty and exists, remove
 if ($Settings.delete_parentFolder -eq $true) {
 
-    if (((Test-Path -Path "$($inputObj.full_path)\*") -eq $False) -AND (Test-Path -Path "$($inputObj.full_path)") -eq $True) {
-        displayMessage "Info: Removing parent folder - $($inputObj.full_path)"
-        deleteFile $inputObj.full_path
+    if (((Test-Path -Path "$($initialPath)\*") -eq $False) -AND (Test-Path -Path $initialPath) -eq $True) {
+        displayMessage "Info: Removing parent folder - $($initialPath)"
+        deleteFile $initialPath
     } 
     else {
         displayMessage "Warn: Parent folder not empty, skipping removal..."
     }   
 
 }
+displayMessage "Conversion process complete!"
 
-dispayMessage -NoNewLine 'Press any key to continue...';
+displayMessage "Press any key to continue..."
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
